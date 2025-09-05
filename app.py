@@ -9,45 +9,56 @@ from tensorflow import keras
 from huggingface_hub import hf_hub_download
 from transformers import AutoTokenizer
 
-# -------------------------------
+# ================================
 # Judul Aplikasi
-# -------------------------------
-st.set_page_config(page_title="Sentimen Teks Indonesia", page_icon="🧠")
-st.title("🧠 Sentimen Teks Indonesia")
+# ================================
+st.set_page_config(page_title="Analaisa Sentimen Teks", page_icon="🧠")
+st.title("🧠 Analisa Komentar pada Kasus Tom Lembong")
 
-# -------------------------------
+# ================================
 # Download & Load Model + Tokenizer
-# -------------------------------
+# ================================
 REPO_ID = "zahratalitha/teks"
 MODEL_FILE = "sentiment_model.h5"
 TOKENIZER_ZIP = "tokenizer.zip"
 TOKENIZER_DIR = "tokenizer"
 
+# handler untuk TFOpLambda
+def dummy_layer(x, **kwargs):
+    return tf.identity(x)
+
 @st.cache_resource
 def load_model_and_tokenizer():
+    # download model
     model_path = hf_hub_download(repo_id=REPO_ID, filename=MODEL_FILE, repo_type="model")
+    # download tokenizer zip
     tok_zip = hf_hub_download(repo_id=REPO_ID, filename=TOKENIZER_ZIP, repo_type="model")
     with zipfile.ZipFile(tok_zip, "r") as zip_ref:
         zip_ref.extractall(TOKENIZER_DIR)
 
-    model = keras.models.load_model(model_path, custom_objects={"TFOpLambda": lambda x, **kwargs: x})
+    # load model dengan custom_objects
+    model = keras.models.load_model(
+        model_path,
+        custom_objects={"TFOpLambda": dummy_layer},
+        compile=False
+    )
     tokenizer = AutoTokenizer.from_pretrained(TOKENIZER_DIR)
     return model, tokenizer
 
 model, tokenizer = load_model_and_tokenizer()
 
-# -------------------------------
+# ================================
 # Pembersihan teks sederhana
-# -------------------------------
+# ================================
 def clean_text(text):
     text = text.lower()
     text = re.sub(r"http\S+|www\S+|https\S+", "", text)
     text = re.sub(r"[^a-z0-9\s]", " ", text)
     return re.sub(r"\s+", " ", text).strip()
 
-# -------------------------------
+# ================================
 # Label Mapping
-# -------------------------------
+# ================================
 id2label = {
     0: "SADNESS",
     1: "ANGER",
@@ -56,9 +67,9 @@ id2label = {
     4: "DISAPPOINTMENT"
 }
 
-# -------------------------------
+# ================================
 # Prediksi
-# -------------------------------
+# ================================
 def predict(text):
     clean = clean_text(text)
     enc = tokenizer(clean, truncation=True, padding="max_length", max_length=128, return_tensors="np")
@@ -68,9 +79,9 @@ def predict(text):
     confidence = float(np.max(preds))
     return id2label[label_id], confidence, clean
 
-# -------------------------------
+# ================================
 # UI Input
-# -------------------------------
+# ================================
 user_text = st.text_area("Masukkan teks untuk analisis sentimen:", height=120)
 
 if st.button("Prediksi"):
