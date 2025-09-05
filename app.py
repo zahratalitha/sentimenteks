@@ -85,12 +85,3 @@ if st.button("Prediksi"):
         st.caption(f"Teks: `{user_text}`")
     else:
         st.warning("Tolong masukkan teks terlebih dahulu.")
-
-# -------------------------------
-# Contoh Kasus Tom Lembong
-# -------------------------------
-example = "Tom Lembong dituding melakukan pelanggaran, publik merasa kecewa dengan sikapnya."
-if st.button("Coba dengan kasus Tom Lembong"):
-    label, score = predict(example)
-    st.info(f"Contoh teks: {example}")
-    st.success(f"Label: **{label}** ({score:.2%})")
