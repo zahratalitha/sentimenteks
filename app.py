@@ -61,7 +61,7 @@ def predict(text):
         padding="max_length",
         truncation=True,
         max_length=128,
-        return_tensors="np"   # pakai numpy biar kompatibel dengan keras
+        return_tensors="tf"   # pakai numpy biar kompatibel dengan keras
     )
 
     # pastikan cast ke int32 (keras butuh ini)
