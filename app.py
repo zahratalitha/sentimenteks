@@ -63,18 +63,7 @@ with st.sidebar:
         st.caption(f"Model input names: {getattr(model, 'input_names', [])}")
     except Exception:
         st.caption("Model input names: (tidak terbaca)")
-
-# -------------------------------
-# Util: buat dict input sesuai nama layer yang diharapkan model
-# -------------------------------
 def build_inputs_for_model(enc: dict, expected_names: list[str]) -> dict:
-    """
-    Memetakan output tokenizer (enc) ke nama input yang diharapkan model (expected_names).
-    Akan:
-    - pilih hanya key yang dibutuhkan,
-    - map sinonim umum,
-    - isi token_type_ids bila diminta namun tidak ada (diisi nol).
-    """
     enc_np = {k: enc[k].astype("int32") for k in enc}  # pastikan int32
     inputs = {}
 
@@ -125,27 +114,27 @@ def predict(text: str):
     if not text or not text.strip():
         raise ValueError("Teks kosong.")
 
-    # Tokenisasi → NumPy
+    # Tokenisasi → TensorFlow tensors
     enc = tokenizer(
         text,
         padding="max_length",
         truncation=True,
-        max_length=SEQ_LEN,
-        return_tensors="np",
-        return_token_type_ids=False,  # kurangi potensi mismatch
+        max_length=128,
+        return_tensors="tf"
     )
 
-    # Bangun input sesuai nama layer yang diminta model
-    expected = list(getattr(model, "input_names", []))
-    inputs = build_inputs_for_model(enc, expected)
+    # Konversi ke numpy int32 (biar keras.predict bisa terima)
+    enc_np = {k: v.numpy().astype("int32") for k, v in enc.items()}
 
-    # Inference
+    expected = list(getattr(model, "input_names", []))
+    inputs = build_inputs_for_model(enc_np, expected)
+
     preds = model.predict(inputs, verbose=0)
 
-    # Normalisasi output ke bentuk (batch, num_classes)
+    # Normalisasi output
     probs = np.array(preds)
     if probs.ndim == 1:
-        probs = probs[None, :]  # (num_classes,) -> (1, num_classes)
+        probs = probs[None, :]
 
     label_id = int(np.argmax(probs, axis=1)[0])
     confidence = float(np.max(probs))
