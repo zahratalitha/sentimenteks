@@ -39,5 +39,43 @@ def load_model_and_tokenizer():
     tokenizer = AutoTokenizer.from_pretrained(TOKENIZER_DIR)
     return model, tokenizer
 
+id2label = {
+    0: "SADNESS",
+    1: "ANGER",
+    2: "SUPPORT",
+    3: "HOPE",
+    4: "DISAPPOINTMENT"
+}
 
+# -------------------------------
+# Fungsi prediksi
+# -------------------------------
+def predict(text):
+    tokens = tokenizer(text, padding="max_length", truncation=True, max_length=128, return_tensors="tf")
+    preds = model(tokens)[0].numpy()
+    label_id = int(np.argmax(preds, axis=1)[0])
+    confidence = float(np.max(preds))
+    return id2label[label_id], confidence
+
+# -------------------------------
+# Input User
+# -------------------------------
+user_text = st.text_area("Masukkan teks untuk analisis sentimen:", height=120)
+
+if st.button("Prediksi"):
+    if user_text.strip():
+        label, score = predict(user_text)
+        st.success(f"Label: **{label}** ({score:.2%})")
+        st.caption(f"Teks: `{user_text}`")
+    else:
+        st.warning("Tolong masukkan teks terlebih dahulu.")
+
+# -------------------------------
+# Contoh Kasus Tom Lembong
+# -------------------------------
+example = "Tom Lembong dituding melakukan pelanggaran, publik merasa kecewa dengan sikapnya."
+if st.button("Coba dengan kasus Tom Lembong"):
+    label, score = predict(example)
+    st.info(f"Contoh teks: {example}")
+    st.success(f"Label: **{label}** ({score:.2%})")
 
