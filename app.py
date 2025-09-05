@@ -2,16 +2,44 @@ import streamlit as st
 import numpy as np
 import re
 import zipfile
+
 import tensorflow as tf
 from tensorflow import keras
 from huggingface_hub import hf_hub_download
 from transformers import AutoTokenizer
 
-
+# -------------------------------
+# Judul Aplikasi
+# -------------------------------
 st.set_page_config(page_title="Sentimen Teks Indonesia", page_icon="🧠")
 st.title("🧠 Sentimen Teks Indonesia")
 
+# -------------------------------
+# Download & Load Model + Tokenizer
+# -------------------------------
 REPO_ID = "zahratalitha/teks"
 MODEL_FILE = "sentiment_model.h5"
 TOKENIZER_ZIP = "tokenizer.zip"
 TOKENIZER_DIR = "tokenizer"
+
+# --- FIX: ganti TFOpLambda jadi factory layer yang menerima **kwargs
+def TFOpLambda_factory(**kwargs):
+    # gunakan tf.identity (passthrough) dan teruskan name bila ada
+    return tf.keras.layers.Lambda(tf.identity, name=kwargs.get("name"))
+
+@st.cache_resource
+def load_model_and_tokenizer():
+    model_path = hf_hub_download(repo_id=REPO_ID, filename=MODEL_FILE, repo_type="model")
+    tok_zip = hf_hub_download(repo_id=REPO_ID, filename=TOKENIZER_ZIP, repo_type="model")
+    with zipfile.ZipFile(tok_zip, "r") as zip_ref:
+        zip_ref.extractall(TOKENIZER_DIR)
+
+    model = keras.models.load_model(
+        model_path,
+        custom_objects={"TFOpLambda": TFOpLambda_factory},
+        compile=False,   # inference saja, lebih aman
+    )
+    tokenizer = AutoTokenizer.from_pretrained(TOKENIZER_DIR)
+    return model, tokenizer
+
+model, tokenizer = load_model_and_tokenizer()
