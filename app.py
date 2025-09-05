@@ -8,21 +8,14 @@ from tensorflow import keras
 from huggingface_hub import hf_hub_download
 from transformers import AutoTokenizer
 
-# -------------------------------
-# Judul Aplikasi
-# -------------------------------
 st.set_page_config(page_title="Sentimen Teks Indonesia", page_icon="🧠")
 st.title("🧠 Sentimen Teks Indonesia")
 
-# -------------------------------
-# Download & Load Model + Tokenizer
-# -------------------------------
 REPO_ID = "zahratalitha/teks"
 MODEL_FILE = "sentiment_model.h5"
 TOKENIZER_ZIP = "tokenizer.zip"
 TOKENIZER_DIR = "tokenizer"
 
-# --- FIX: ganti TFOpLambda jadi factory layer yang menerima **kwargs
 def TFOpLambda_factory(**kwargs):
     # gunakan tf.identity (passthrough) dan teruskan name bila ada
     return tf.keras.layers.Lambda(tf.identity, name=kwargs.get("name"))
@@ -43,3 +36,5 @@ def load_model_and_tokenizer():
     return model, tokenizer
 
 model, tokenizer = load_model_and_tokenizer()
+
+
