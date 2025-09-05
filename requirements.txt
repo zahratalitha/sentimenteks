@@ -3,4 +3,5 @@ tensorflow
 numpy
 pillow
 huggingface_hub
-requests
+transformers
+pandas
