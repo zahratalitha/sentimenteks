@@ -8,8 +8,8 @@ from tensorflow import keras
 from huggingface_hub import hf_hub_download
 from transformers import AutoTokenizer
 
-st.set_page_config(page_title="Sentimen Teks Indonesia", page_icon="🧠")
-st.title("🧠 Sentimen Teks Indonesia")
+st.set_page_config(page_title="Analisis Sentimen Kasus Tom Lembong", page_icon="🧠")
+st.title("🧠 Analisis Sentimen Komentar Kasus Tom Lembong")
 
 REPO_ID = "zahratalitha/teks"
 MODEL_FILE = "sentiment_model.h5"
