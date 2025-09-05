@@ -50,9 +50,26 @@ id2label = {
 # -------------------------------
 # Fungsi prediksi
 # -------------------------------
+# -------------------------------
+# Fungsi prediksi
+# -------------------------------
 def predict(text):
-    tokens = tokenizer(text, padding="max_length", truncation=True, max_length=128, return_tensors="tf")
-    preds = model(tokens)[0].numpy()
+    # Tokenisasi teks → dict dengan input_ids dan attention_mask
+    tokens = tokenizer(
+        text,
+        padding="max_length",
+        truncation=True,
+        max_length=128,
+        return_tensors="np"   # pakai numpy biar kompatibel dengan keras
+    )
+
+    # pastikan cast ke int32 (keras butuh ini)
+    tokens = {k: v.astype("int32") for k, v in tokens.items()}
+
+    # prediksi
+    preds = model.predict(tokens, verbose=0)
+
+    # ambil label
     label_id = int(np.argmax(preds, axis=1)[0])
     confidence = float(np.max(preds))
     return id2label[label_id], confidence
