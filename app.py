@@ -25,10 +25,11 @@ def load_model_and_tokenizer():
         zip_ref.extractall(TOKENIZER_DIR)
 
     # Load model
-    model = keras.models.load_model(
+     model = keras.models.load_model(
         model_path,
         custom_objects={
             "TFOpLambda": tf.identity,
+            "TFBertModel": TFBertModel,   # 🔥 tambahkan ini
         },
         compile=False,
         safe_mode=False,
@@ -37,7 +38,7 @@ def load_model_and_tokenizer():
     tokenizer = AutoTokenizer.from_pretrained(TOKENIZER_DIR)
     return model, tokenizer
 
-# 🔥 Panggil sekali di awal
+# 🔥 panggil model & tokenizer sekali
 model, tokenizer = load_model_and_tokenizer()
 
 # Label mapping
