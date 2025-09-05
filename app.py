@@ -1,9 +1,8 @@
 import streamlit as st
 import tensorflow as tf
 from tensorflow import keras
-from transformers import AutoTokenizer
 from huggingface_hub import hf_hub_download
-import zipfile, os, re, pandas as pd
+import PIL as images
 
 # ================================
 # Download model & tokenizer
