@@ -78,10 +78,25 @@ def predict(text):
 # -------------------------------
 user_text = st.text_area("Masukkan teks untuk analisis sentimen:", height=120)
 
+# Tambahan: pilihan komentar contoh
+examples = [
+    "",
+    "Tom Lembong dituding melakukan pelanggaran, publik merasa kecewa dengan sikapnya.",
+    "Saya mendukung Tom Lembong karena beliau jujur.",
+    "Publik marah besar atas tindakan yang dilakukan.",
+    "Masih ada harapan agar kasus ini diselesaikan dengan baik.",
+]
+
+selected_example = st.selectbox("Atau pilih komentar contoh:", examples)
+
+# Gunakan teks dari input atau contoh
+final_text = user_text.strip() if user_text.strip() else selected_example
+
 if st.button("Prediksi"):
-    if user_text.strip():
-        label, score = predict(user_text)
+    if final_text:
+        label, score = predict(final_text)
         st.success(f"Label: **{label}** ({score:.2%})")
-        st.caption(f"Teks: `{user_text}`")
+        st.caption(f"Teks: `{final_text}`")
     else:
         st.warning("Tolong masukkan teks terlebih dahulu.")
+
