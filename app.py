@@ -96,5 +96,5 @@ if st.button("Coba dengan kasus Tom Lembong"):
     st.info(f"Contoh teks: {example}")
     st.success(f"Label: **{label}** ({score:.2%})")
 
-untuk analisa kasus tom lembong teks bisa pilih atau input sendiri nanti muncul label
+
 
