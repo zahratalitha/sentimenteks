@@ -1,6 +1,5 @@
 import streamlit as st
 import numpy as np
-import re
 import zipfile
 
 import tensorflow as tf
@@ -25,7 +24,7 @@ def load_model_and_tokenizer():
     with zipfile.ZipFile(tok_zip, "r") as zip_ref:
         zip_ref.extractall(TOKENIZER_DIR)
 
-    # Load model dengan custom_objects
+    # Load model
     model = keras.models.load_model(
         model_path,
         custom_objects={
@@ -38,6 +37,10 @@ def load_model_and_tokenizer():
     tokenizer = AutoTokenizer.from_pretrained(TOKENIZER_DIR)
     return model, tokenizer
 
+# 🔥 Panggil sekali di awal
+model, tokenizer = load_model_and_tokenizer()
+
+# Label mapping
 id2label = {
     0: "SADNESS",
     1: "ANGER",
@@ -49,9 +52,6 @@ id2label = {
 # -------------------------------
 # Fungsi prediksi
 # -------------------------------
-# -------------------------------
-# Fungsi prediksi
-# -------------------------------
 def predict(text):
     # Tokenisasi teks → dict dengan input_ids dan attention_mask
     tokens = tokenizer(
@@ -59,11 +59,11 @@ def predict(text):
         padding="max_length",
         truncation=True,
         max_length=128,
-        return_tensors="tf"   # pakai numpy biar kompatibel dengan keras
+        return_tensors="tf"
     )
 
-    # pastikan cast ke int32 (keras butuh ini)
-    tokens = {k: v.astype("int32") for k, v in tokens.items()}
+    # pastikan cast ke int32
+    tokens = {k: tf.cast(v, tf.int32) for k, v in tokens.items()}
 
     # prediksi
     preds = model.predict(tokens, verbose=0)
@@ -76,22 +76,12 @@ def predict(text):
 # -------------------------------
 # Input User
 # -------------------------------
-user_text = st.text_area("Masukkan teks untuk analisis sentimen:", height=120)
+user_text = st.text_area("Masukkan komentar untuk analisis sentimen:", height=120)
 
 if st.button("Prediksi"):
     if user_text.strip():
         label, score = predict(user_text)
-        st.success(f"Label: **{label}** ({score:.2%})")
+        st.success(f"**Label:** {label} ({score:.2%})")
         st.caption(f"Teks: `{user_text}`")
     else:
         st.warning("Tolong masukkan teks terlebih dahulu.")
-
-# -------------------------------
-# Contoh Kasus Tom Lembong
-# -------------------------------
-example = "Tom Lembong dituding melakukan pelanggaran, publik merasa kecewa dengan sikapnya."
-if st.button("Coba dengan kasus Tom Lembong"):
-    label, score = predict(example)
-    st.info(f"Contoh teks: {example}")
-    st.success(f"Label: **{label}** ({score:.2%})")
-
