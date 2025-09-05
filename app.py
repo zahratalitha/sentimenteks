@@ -6,7 +6,7 @@ import zipfile
 import tensorflow as tf
 from tensorflow import keras
 from huggingface_hub import hf_hub_download
-from transformers import AutoTokenizer
+from transformers import AutoTokenizer, TFBertModel
 
 st.set_page_config(page_title="Analisis Sentimen Kasus Tom Lembong", page_icon="🧠")
 st.title("🧠 Analisis Sentimen Komentar Kasus Tom Lembong")
