@@ -14,11 +14,7 @@ st.title("🧠 Sentimen Teks Indonesia")
 REPO_ID = "zahratalitha/teks"
 MODEL_FILE = "sentiment_model.h5"
 TOKENIZER_ZIP = "tokenizer.zip"
-TOKENIZER_DIR = "tokenizer"
-
-def TFOpLambda_factory(**kwargs):
-    # gunakan tf.identity (passthrough) dan teruskan name bila ada
-    return tf.keras.layers.Lambda(tf.identity, name=kwargs.get("name"))
+TOKENIZER_DIR = "tokenizer" 
 
 @st.cache_resource
 def load_model_and_tokenizer():
@@ -27,11 +23,13 @@ def load_model_and_tokenizer():
     with zipfile.ZipFile(tok_zip, "r") as zip_ref:
         zip_ref.extractall(TOKENIZER_DIR)
 
-    model = keras.models.load_model(
-        model_path,
-        custom_objects={"TFOpLambda": TFOpLambda_factory},
-        compile=False,   # inference saja, lebih aman
-    )
+ model = keras.models.load_model(
+    model_path,
+    custom_objects={"TFOpLambda": tf.identity},
+    compile=False,
+    safe_mode=False
+)
+
     tokenizer = AutoTokenizer.from_pretrained(TOKENIZER_DIR)
     return model, tokenizer
 
