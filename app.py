@@ -94,4 +94,3 @@ if st.button("Coba dengan kasus Tom Lembong"):
     label, score = predict(example)
     st.info(f"Contoh teks: {example}")
     st.success(f"Label: **{label}** ({score:.2%})")
-saat prediksi label tidak muncul
