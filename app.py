@@ -10,8 +10,8 @@ from transformers import AutoTokenizer, TFBertModel
 # -------------------------------
 # Konfigurasi Halaman
 # -------------------------------
-st.set_page_config(page_title="Analisis Sentimen Kasus Tom Lembong", page_icon="🧠")
-st.title("🧠 Analisis Sentimen Kasus Tom Lembong")
+st.set_page_config(page_title="Sentimen Teks Indonesia", page_icon="🧠")
+st.title("🧠 Sentimen Teks Indonesia")
 
 REPO_ID = "zahratalitha/teks"
 MODEL_FILE = "sentiment_model.h5"
@@ -23,12 +23,15 @@ TOKENIZER_DIR = "tokenizer"
 # -------------------------------
 @st.cache_resource
 def load_model_and_tokenizer():
+    # download model dan tokenizer dari HuggingFace
     model_path = hf_hub_download(repo_id=REPO_ID, filename=MODEL_FILE, repo_type="model")
     tok_zip = hf_hub_download(repo_id=REPO_ID, filename=TOKENIZER_ZIP, repo_type="model")
 
+    # extract tokenizer
     with zipfile.ZipFile(tok_zip, "r") as zip_ref:
         zip_ref.extractall(TOKENIZER_DIR)
 
+    # load model
     model = keras.models.load_model(
         model_path,
         custom_objects={
@@ -72,16 +75,25 @@ def predict(text):
     return id2label[label_id], confidence
 
 # -------------------------------
-# Analisis Kasus Tom Lembong
+# Input User
 # -------------------------------
-default_text = "Tom Lembong dituding melakukan pelanggaran, publik merasa kecewa dengan sikapnya."
+st.subheader("🔍 Analisis Sentimen")
+user_text = st.text_area("Masukkan teks untuk analisis sentimen:", height=120)
 
-user_text = st.text_area("Masukkan teks analisis:", value=default_text, height=120)
-
-if st.button("Analisis Sentimen"):
+if st.button("Prediksi"):
     if user_text.strip():
         label, score = predict(user_text)
         st.success(f"Label: **{label}** ({score:.2%})")
         st.caption(f"Teks: `{user_text}`")
     else:
         st.warning("Tolong masukkan teks terlebih dahulu.")
+
+# -------------------------------
+# Contoh Kasus Tom Lembong
+# -------------------------------
+st.subheader("📌 Contoh Kasus Tom Lembong")
+example = "Tom Lembong dituding melakukan pelanggaran, publik merasa kecewa dengan sikapnya."
+if st.button("Coba dengan teks contoh"):
+    label, score = predict(example)
+    st.info(f"Contoh teks: {example}")
+    st.success(f"Label: **{label}** ({score:.2%})")
