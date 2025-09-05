@@ -30,7 +30,6 @@ def load_model_and_tokenizer():
         model_path,
         custom_objects={
             "TFOpLambda": tf.identity,
-            "TFBertModel": TFBertModel,
         },
         compile=False,
         safe_mode=False,
@@ -38,6 +37,7 @@ def load_model_and_tokenizer():
 
     tokenizer = AutoTokenizer.from_pretrained(TOKENIZER_DIR)
     return model, tokenizer
+model, tokenizer = load_model_and_tokenizer()
 
 id2label = {
     0: "SADNESS",
