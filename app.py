@@ -38,6 +38,7 @@ def load_model_and_tokenizer():
 
     tokenizer = AutoTokenizer.from_pretrained(TOKENIZER_DIR)
     return model, tokenizer
+    model, tokenizer = load_model_and_tokenizer()
 
 id2label = {
     0: "SADNESS",
