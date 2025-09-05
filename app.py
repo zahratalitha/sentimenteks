@@ -2,7 +2,11 @@ import streamlit as st
 import tensorflow as tf
 from tensorflow import keras
 from huggingface_hub import hf_hub_download
-import PIL as images
+from transformers import AutoTokenizer
+from PIL import Image
+import zipfile
+import pandas as pd
+import re
 
 # ================================
 # Download model & tokenizer
@@ -12,11 +16,10 @@ MODEL_FILE = "sentiment_model.h5"
 TOKENIZER_ZIP = "tokenizer.zip"
 TOKENIZER_DIR = "tokenizer"
 
-# download model h5
+# Download model h5 (langsung pakai path, tanpa os.rename)
 model_path = hf_hub_download(repo_id=REPO_ID, filename=MODEL_FILE, repo_type="model")
-os.rename(model_path, MODEL_FILE)
 
-# download & extract tokenizer
+# Download & extract tokenizer
 tok_zip = hf_hub_download(repo_id=REPO_ID, filename=TOKENIZER_ZIP, repo_type="model")
 with zipfile.ZipFile(tok_zip, "r") as zip_ref:
     zip_ref.extractall(TOKENIZER_DIR)
@@ -25,7 +28,7 @@ with zipfile.ZipFile(tok_zip, "r") as zip_ref:
 # Load model & tokenizer
 # ================================
 custom_objects = {"TFOpLambda": lambda x: x}
-model = keras.models.load_model(MODEL_FILE, custom_objects=custom_objects)
+model = keras.models.load_model(model_path, custom_objects=custom_objects)
 tokenizer = AutoTokenizer.from_pretrained(TOKENIZER_DIR)
 
 print("Model inputs:", model.input_names)
