@@ -24,11 +24,14 @@ def load_model_and_tokenizer():
         zip_ref.extractall(TOKENIZER_DIR)
 
  model = keras.models.load_model(
-    model_path,
-    custom_objects={"TFOpLambda": tf.identity},
-    compile=False,
-    safe_mode=False
-)
+        model_path,
+        custom_objects={
+            "TFOpLambda": tf.identity,   # untuk TFOpLambda
+            "TFBertModel": TFBertModel,  # untuk backbone BERT
+        },
+        compile=False,
+        safe_mode=False
+    )
 
     tokenizer = AutoTokenizer.from_pretrained(TOKENIZER_DIR)
     return model, tokenizer
